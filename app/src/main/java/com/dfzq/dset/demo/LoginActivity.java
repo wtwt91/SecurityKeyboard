@@ -27,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -82,12 +83,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         KeyboardManager.logo = R.drawable.dset_keyboard_logo_bg_small;
-        KeyboardManager.getInstance().setProvider(() -> new BaiduRecognizer(LoginActivity.this));
+        KeyboardManager.getInstance().setProvider(() -> new BaiduRecognizer(LoginActivity.this, () -> {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_RECORD_AUDIO);
+        }));
         KeyboardManager.assetsFolder = "voice/";
         KeyboardManager.animationName = "voice/data.json";
         // Set up the login form.
         mEmailView = findViewById(R.id.email);
-        populateAutoComplete();
+//        populateAutoComplete();
         initVoice();
         //voiceEditText = findViewById(R.id.voice);
         mPasswordView = findViewById(R.id.password);
@@ -112,7 +115,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         layoutVoiceTips = view.findViewById(R.id.ll_voice_tips);
         layoutVoiceFail = view.findViewById(R.id.ll_voice_fail);
         popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        initPermission(this);
+        //initPermission(this);
         codeText.setVoiceInputStateChangeListener(new VoiceInputStateChangeListener() {
             @Override
             public void onStateChanged(int state) {
@@ -152,6 +155,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             } else {
                 layoutVoiceTips.setVisibility(View.GONE);
                 layoutVoiceFail.setVisibility(View.VISIBLE);
+                Toast.makeText(this, "请开启录音权限", Toast.LENGTH_SHORT).show();
             }
         }
     }
